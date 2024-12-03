@@ -2,10 +2,21 @@
 // 🛑 Nothing in here has anything to do with Remix, it's just a fake database
 ////////////////////////////////////////////////////////////////////////////////
 
+import axios from "axios";
 import { matchSorter } from "match-sorter";
 // @ts-expect-error - no types, but it's a tiny function
 import sortBy from "sort-by";
 import invariant from "tiny-invariant";
+
+
+const API_SERVER = "http://127.0.0.1:8000";
+
+const ax = axios.create({
+  baseURL: API_SERVER,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 type ContactMutation = {
   id?: string;
@@ -60,11 +71,17 @@ const fakeContacts = {
   },
 };
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // Handful of helper functions to be called from route loaders and actions
 export async function getContacts(query?: string | null) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  let contacts = await fakeContacts.getAll();
+
+  const response = await ax.get(`${API_SERVER}/contacts`);
+  let contacts: ContactRecord[] = response.data;
+
+  // await new Promise((resolve) => setTimeout(resolve, 500));
+  // let contacts = await fakeContacts.getAll();
+
   if (query) {
     contacts = matchSorter(contacts, query, {
       keys: ["first", "last"],
@@ -74,25 +91,55 @@ export async function getContacts(query?: string | null) {
 }
 
 export async function createEmptyContact() {
-  const contact = await fakeContacts.create({});
-  return contact;
+
+  const id = Math.random().toString(36).substring(2, 9);
+  const createdAt = new Date().toISOString();
+  const newContact = { id, createdAt};
+
+  return newContact;
 }
 
 export async function getContact(id: string) {
-  return fakeContacts.get(id);
-}
 
-export async function updateContact(id: string, updates: ContactMutation) {
-  const contact = await fakeContacts.get(id);
-  if (!contact) {
-    throw new Error(`No contact found for ${id}`);
-  }
-  await fakeContacts.set(id, { ...contact, ...updates });
+  const response = await ax.get(`${API_SERVER}/contacts/${id}`);
+  const contact: ContactRecord = response.data;
+
   return contact;
 }
 
+export async function updateContact(id: string, updates: ContactMutation) {
+
+
+  // const response = await fetch(`${API_SERVER}/contacts/${id}`);
+  // const contact: ContactRecord = await response.json();
+
+  // if (!contact) {
+
+
+  //   throw new Error(`No contact found for ${id}`);
+  // }
+
+  const updateResponse = await ax.put(`${API_SERVER}/contacts/${id}`, updates)
+
+
+  if (!updateResponse) {
+    throw new Error(`Failed to update contact with ID: ${id}`);
+  }
+
+  return updateContact;
+
+
+  // await fakeContacts.set(id, { ...contact, ...updates });
+
+  //return contact;
+}
+
 export async function deleteContact(id: string) {
-  fakeContacts.destroy(id);
+  
+  await ax.delete(`${API_SERVER}/contacts/${id}`)
+
+  //fakeContacts.destroy(id);
+
 }
 
 [
