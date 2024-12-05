@@ -1,5 +1,6 @@
 # firebase emulator 설정
 
+## clone 하고 처음 해야할것
 ```
 $ npm install -g firebase-tools
 $ firebase login
