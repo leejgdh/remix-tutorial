@@ -1,18 +1,25 @@
 // app/routes/login.tsx
 import { Form, useNavigate } from "@remix-run/react";
 import { FirebaseError } from "firebase/app";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFirebaseAuth } from "~/auth/firebase-context";
 
 export default function Login() {
-  
-  const {login} = useFirebaseAuth();
+
+  const { user, login } = useFirebaseAuth();
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const navi = useNavigate();
 
-  
+  useEffect(() => {
+
+    if(user){
+      navi("/");
+    }
+
+  },[user])
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -25,9 +32,9 @@ export default function Login() {
     try {
 
       const signInRes = await login(email, password);
-      
-      console.log('signInRes',signInRes);
-      
+
+      console.log('signInRes', signInRes);
+
       setSuccessMessage("로그인에 성공했습니다!");
 
       navi('/');
@@ -57,11 +64,11 @@ export default function Login() {
         </label>
       </div>
       <button type="submit">로그인</button>
-      
+
       {
         successMessage && <>{successMessage}</>
       }
-      
+
       {
         error && <>{error}</>
       }
