@@ -1,38 +1,37 @@
-# Welcome to Remix!
+# firebase emulator 설정
 
-- [Remix Docs](https://remix.run/docs)
-
-## Development
-
-From your terminal:
-
-```sh
-npm run dev
+```
+$ npm install -g firebase-tools
+$ firebase login
+$ firebase init
 ```
 
-This starts your app in development mode, rebuilding assets on file changes.
+firebase init 이후에는 초기화 할 종류를 결정하게 된다
+- Emulators
+- Use an existing project
+    - 만들어둔 firebase 프로젝트 선택
+- Authentication Emulator
 
-## Deployment
+순으로 선택해주면 된다.
+나머지는 기본값
 
-First, build your app for production:
-
-```sh
-npm run build
+```
+$ firebase emulators:start
 ```
 
-Then run the app in production mode:
+이후에 Authentication 에뮬레이터 실행되고 , 9099 포트 번호로 실행됐다고 나오면 됨
+UI 주소는 localhost:4000/auth이다
 
-```sh
-npm start
+## .env 키값
+
+firebase console에 맞춰서 쓰면 된다.
+
 ```
-
-Now you'll need to pick a host to deploy it to.
-
-### DIY
-
-If you're familiar with deploying node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `remix build`
-
-- `build/server`
-- `build/client`
+FIREBASE_API_KEY=
+FIREBASE_AUTH_DOMAIN=
+FIREBASE_PROJECT_ID=
+FIREBASE_STORAGE_BUCKET=
+FIREBASE_MESSAGING_SENDER_ID=
+FIREBASE_APP_ID=
+FIREBASE_MEASUREMENT_ID=
+```
