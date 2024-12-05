@@ -4,6 +4,8 @@ import type { FunctionComponent } from "react";
 import { getContact, updateContact, type ContactRecord } from "../data";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
+import { useFirebaseAuth } from "~/auth/firebase-context";
+import AuthGuard from "~/auth/auth-guard";
 
 
 // export const loader = async ({ params }) => {
@@ -36,21 +38,20 @@ export const action = async ({
 };
 
 export default function Contact() {
-  
+
   const { contact } = useLoaderData<typeof loader>();
 
-    
-  // const contact = {
-  //   first: "Your",
-  //   last: "Name",
-  //   avatar: "https://placecats.com/200/200",
-  //   twitter: "your_handle",
-  //   notes: "Some notes",
-  //   favorite: true,
-  // };
+  const { user, logout } = useFirebaseAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  }
 
   return (
     <div id="contact">
+      {
+        user ? <button onClick={handleLogout}>로그아웃</button> : <button>로그인</button>
+      }
       <div>
         <img
           alt={`${contact.first} ${contact.last} avatar`}
@@ -112,25 +113,28 @@ const Favorite: FunctionComponent<{
   contact: Pick<ContactRecord, "favorite">;
 }> = ({ contact }) => {
   const fetcher = useFetcher();
-  
+
   const favorite = fetcher.formData
-  ? fetcher.formData.get("favorite") === "true"
-  : contact.favorite;
+    ? fetcher.formData.get("favorite") === "true"
+    : contact.favorite;
 
   return (
-    <fetcher.Form method="post">
-      <button
-        aria-label={
-          favorite
-            ? "Remove from favorites"
-            : "Add to favorites"
-        }
-        name="favorite"
-        value={favorite ? "false" : "true"}
-      >
-        {favorite ? "★" : "☆"}
-      </button>
-    </fetcher.Form>
+    <AuthGuard>
+
+      <fetcher.Form method="post">
+        <button
+          aria-label={
+            favorite
+              ? "Remove from favorites"
+              : "Add to favorites"
+          }
+          name="favorite"
+          value={favorite ? "false" : "true"}
+        >
+          {favorite ? "★" : "☆"}
+        </button>
+      </fetcher.Form>
+    </AuthGuard>
   );
 };
 
