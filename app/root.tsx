@@ -34,7 +34,6 @@ type LoaderProp = {
 export const loader = async ({
   request,
 }: LoaderFunctionArgs) => {
-
     
   const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
