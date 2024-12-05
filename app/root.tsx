@@ -27,14 +27,14 @@ export const links: LinksFunction = () => [
 type LoaderProp = {
   contacts: ContactRecord[],
   q: string | null,
-  firebaseConfig : FirebaseConfig
+  firebaseConfig: FirebaseConfig
 }
 
 
 export const loader = async ({
   request,
 }: LoaderFunctionArgs) => {
-    
+
   const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -79,16 +79,17 @@ export default function App() {
 
 
   return (
-    <FirebaseAuthProvider config={firebaseConfig}>
 
-      <html lang="en">
-        <head>
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <Meta />
-          <Links />
-        </head>
-        <body>
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+
+        <FirebaseAuthProvider config={firebaseConfig}>
           <div id="sidebar">
             <h1>Remix Contacts</h1>
             <div>
@@ -163,13 +164,15 @@ export default function App() {
                 : ""
             }
             id="detail">
+
+
             <Outlet />
           </div>
           <ScrollRestoration />
           <Scripts />
-        </body>
-      </html>
-    </FirebaseAuthProvider>
+        </FirebaseAuthProvider>
+      </body>
+    </html >
   );
 }
 
