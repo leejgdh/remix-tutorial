@@ -1,13 +1,12 @@
 // app/routes/register.tsx
 import { Form } from "@remix-run/react";
 import { FirebaseError } from "firebase/app";
-import { createUserWithEmailAndPassword, UserCredential } from "firebase/auth";
 import { useState } from "react";
-import { useFirebase } from "~/auth/firebase-context";
+import { useFirebaseAuth } from "~/auth/firebase-context";
 
 export default function Register() {
 
-  const { auth } = useFirebase();
+  const { register } = useFirebaseAuth();
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -20,15 +19,12 @@ export default function Register() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    if (!auth) {
-      setError("Firebase Auth가 초기화되지 않았습니다.");
-      return;
-    }
 
     try {
-      const signupRes : UserCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+      const signUpRes = await register(email,password);
       
-      console.log(signupRes);
+      console.log(signUpRes);
       
       setSuccessMessage("회원가입에 성공했습니다!");
     } catch (err) {

@@ -4,6 +4,7 @@ import type { FunctionComponent } from "react";
 import { getContact, updateContact, type ContactRecord } from "../data";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
+import { useFirebaseAuth } from "~/auth/firebase-context";
 
 
 // export const loader = async ({ params }) => {
@@ -36,10 +37,15 @@ export const action = async ({
 };
 
 export default function Contact() {
-  
+
   const { contact } = useLoaderData<typeof loader>();
 
-    
+  const { user } = useFirebaseAuth();
+
+
+  console.log('user', user);
+
+
   // const contact = {
   //   first: "Your",
   //   last: "Name",
@@ -112,10 +118,10 @@ const Favorite: FunctionComponent<{
   contact: Pick<ContactRecord, "favorite">;
 }> = ({ contact }) => {
   const fetcher = useFetcher();
-  
+
   const favorite = fetcher.formData
-  ? fetcher.formData.get("favorite") === "true"
-  : contact.favorite;
+    ? fetcher.formData.get("favorite") === "true"
+    : contact.favorite;
 
   return (
     <fetcher.Form method="post">

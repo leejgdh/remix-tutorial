@@ -1,13 +1,12 @@
 // app/routes/login.tsx
 import { Form } from "@remix-run/react";
 import { FirebaseError } from "firebase/app";
-import { signInWithEmailAndPassword, UserCredential } from "firebase/auth";
 import { useState } from "react";
-import { useFirebase } from "~/auth/firebase-context";
+import { useFirebaseAuth } from "~/auth/firebase-context";
 
 export default function Login() {
   
-  const { auth } = useFirebase();
+  const {login} = useFirebaseAuth();
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -21,13 +20,9 @@ export default function Login() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    if (!auth) {
-      setError("Firebase Auth가 초기화되지 않았습니다.");
-      return;
-    }
-
     try {
-      const signInRes : UserCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      const signInRes = await login(email, password);
       
       console.log(signInRes);
       

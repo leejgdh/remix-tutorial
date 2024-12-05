@@ -1,9 +1,22 @@
 // app/routes/logout.tsx
 import { redirect } from "@remix-run/node";
-import { signOut } from "firebase/auth";
-import { auth } from "~/auth/firebase-client";
+import { useFirebaseAuth } from "~/auth/firebase-context";
 
 export const loader = async () => {
-  await signOut(auth);
+
   return redirect("/login");
 };
+
+
+export default function Logout() {
+
+
+  const { logout } = useFirebaseAuth();
+
+  logout()
+    .then(() => {
+      redirect('/login')
+    })
+
+  return
+}

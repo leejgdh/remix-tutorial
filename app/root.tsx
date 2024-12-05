@@ -1,4 +1,4 @@
-import { json, LinksFunction, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { LinksFunction, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import {
   Form,
   isRouteErrorResponse,
@@ -16,22 +16,39 @@ import {
 import appStylesHref from "./app.css?url";
 
 
-import { createEmptyContact, getContacts } from "./data";
+import { ContactRecord, createEmptyContact, getContacts } from "./data";
 import { useEffect, useState } from "react";
-import { FirebaseProvider } from "./auth/firebase-context";
+import { FirebaseAuthProvider, FirebaseConfig } from "./auth/firebase-context";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: appStylesHref },
 ];
 
+type LoaderProp = {
+  contacts: ContactRecord[],
+  q: string | null,
+  firebaseConfig : FirebaseConfig
+}
+
 
 export const loader = async ({
   request,
 }: LoaderFunctionArgs) => {
+
+    
+  const firebaseConfig = {
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+  };
+
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
   const contacts = await getContacts(q);
-  return json({ contacts, q });
+  return Response.json({ contacts, q, firebaseConfig });
 };
 
 
@@ -43,7 +60,7 @@ export const action = async () => {
 
 export default function App() {
 
-  const { contacts, q } = useLoaderData<typeof loader>();
+  const { contacts, q, firebaseConfig } = useLoaderData<LoaderProp>();
   const navigation = useNavigation();
 
   const submit = useSubmit();
@@ -54,27 +71,16 @@ export default function App() {
       "q"
     );
 
-  // the query now needs to be kept in state
   const [query, setQuery] = useState(q || "");
 
 
-  // we still have a `useEffect` to synchronize the query
-  // to the component state on back/forward button clicks
   useEffect(() => {
     setQuery(q || "");
   }, [q]);
 
-  // useEffect(() => {
-  //   const searchField = document.getElementById("q");
-  //   if (searchField instanceof HTMLInputElement) {
-  //     searchField.value = q || "";
-  //   }
-  // }, [q]);
-
-
 
   return (
-    <FirebaseProvider>
+    <FirebaseAuthProvider config={firebaseConfig}>
 
       <html lang="en">
         <head>
@@ -164,7 +170,7 @@ export default function App() {
           <Scripts />
         </body>
       </html>
-    </FirebaseProvider>
+    </FirebaseAuthProvider>
   );
 }
 
